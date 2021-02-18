@@ -9,6 +9,10 @@ import {
 import Colors from '../utils/colors';
 import ContactListItem from '../components/contactListItem'
 import { Feather } from "@expo/vector-icons";
+import {  } from "module";
+
+
+
 const contacts = [
     { id: '1', name: 'Morsal', phone: '11111111', email: 'morsalosmani2@gmail.com'},
     { id: '2', name: 'Marwa', phone: '2222222', email: 'marwa@gmail.com'},
