@@ -1,4 +1,4 @@
-import React from 'react';
+import React ,{useState , useEffect}from 'react';
 import {
     View,
     Text,
@@ -6,33 +6,53 @@ import {
     TouchableOpacity,
     StyleSheet
 } from 'react-native';
+import { Feather } from "@expo/vector-icons";
+import * as SQLite from 'expo-sqlite';
+
 import Colors from '../utils/colors';
 import ContactListItem from '../components/contactListItem'
-import { Feather } from "@expo/vector-icons";
-import {  } from "module";
 
 
+// import { useState } from 'react';
+const db = SQLite.openDatabase('contacts.db');
 
-const contacts = [
-    { id: '1', name: 'Morsal', phone: '11111111', email: 'morsalosmani2@gmail.com'},
-    { id: '2', name: 'Marwa', phone: '2222222', email: 'marwa@gmail.com'},
-    { id: '3', name: 'Avina', phone: '33333333', email: 'avina1@gmail.com'},
-    { id: '4', name: 'Shagofah', phone: '44444444', email: 'sh_osmani@gmail.com'},
-    { id: '5', name: 'Fatemah', phone: '55555555', email: 'fatema@gmail.com'},
-    { id: '6', name: 'sodabah', phone: '66666666', email: 'sodabashirzad@gmail.com'},
-    { id: '7', name: 'Jamshid', phone: '777777777', email: 'habibi@gmail.com'},
+ 
 
-]
 export default function Contacts({navigation}){
+  const[Contacts , setContacts] = useState([]);
+  useEffect(()=>{
+    db.transaction((tx)=> {
+      tx.executeSql('(select * from contact)' ,[],(tx, {rows})=>{
+ 
+        var data = [];
+        for(var i = 0; i<rows.length ; i++){
+          data.push(rows[i]);
+
+        }
+        setContacts(data);
+        
+      })
+    
+    })
+
+  })
+
+  const deleteContact = (id) =>{
+    db.transaction(tx => {
+      tx.executeSql('delete form contact where id =?' , [id]);
+    })
+  }
   return (
     <View>
-      <FlatList 
+     {Contacts.length > 0 ?  <FlatList 
         data={contacts}
         keyExtractor={(item)=>{item.id}}
         renderItem={({item}) =>{
-            return <ContactListItem name={item.name} phone={item.phone }  onPress={()=> navigation.navigate('Profile',{item:item})}/>
+            return <ContactListItem name={item.name} phone={item.phone }  onPress={()=> navigation.navigate('Profile',{item:item})} onDeleteContact = {() => deleteContact(item.id)}/>
         }}
-      />
+      />: <View>
+        <Text>No contact to display</Text>
+        </View>}
       <TouchableOpacity style={styles.floatButton} onPress={()=> navigation.navigate('CreateContact')}>
         <Text>
           <Feather name="plus" size={28} color="white" />
@@ -44,6 +64,7 @@ export default function Contacts({navigation}){
   )
 
 }
+
 const styles =StyleSheet.create({
   
   floatButton:{
@@ -55,4 +76,3 @@ const styles =StyleSheet.create({
     right:40
   }
 })
-
